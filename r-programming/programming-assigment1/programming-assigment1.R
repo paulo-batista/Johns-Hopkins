@@ -12,9 +12,12 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
  ##   v <- c(v, d)
  ## }  
   
+  print (id[1])
+  print (id[1]+length(id))
+  b = id[1]+length(id)
   
   
-  avg <- mean(df[[pollutant]][df$ID>=id[1] & df$ID<=id[2]])
+  avg <- mean(df[[pollutant]][df$ID>=id[1] & df$ID<b])
     
   return(avg)
   
