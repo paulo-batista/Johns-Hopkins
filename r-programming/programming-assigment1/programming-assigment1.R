@@ -28,21 +28,31 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
 ## Complete v1
 ## Date: 25.05.2017
 
+
 complete <- function(directory, id = 1:332) {
-  nobs = rep(1, length(id))
-  fileId = rep(1, length(id))
-  for (k in 1:length(id)){
-    position = id[k]
-    fileNum = sprintf("%03d", position)
-    fileName = paste(directory, fileNum, sep = "/")
-    fileNameType = paste(fileName, ".csv", sep = "")
-    data <- read.csv(fileNameType)
-    clData=na.omit(data)
-    fileId[k] = fileNum
-    nobs[k] = nrow(clData)
-    
+
+  
+  nobs <- function(id) {
+    path <- file.path(directory, paste(sprintf("%03d", as.numeric(id)), ".csv", sep=""))
+    return (sum(complete.cases(read.csv(path))))
   }
-  rtable <- data.frame(fileId, nobs)
-  return(rtable)
+  return (data.frame(id=id, nobs=sapply(id, nobs)))
 }
 
+## Correlations v1
+## Date: 25.05.2017
+
+
+corr <- function(directory, threshold = 0) {
+
+  tcorr <- function(fname) {
+    data <- read.csv(file.path(directory, fname))
+    nobs <- sum(complete.cases(data))
+    if (nobs > threshold) {
+      return (cor(data$nitrate, data$sulfate, use="complete.obs"))
+    }
+  }
+  tcorrs <- sapply(list.files(directory), tcorr) #get all correlations + NULLs
+  tcorrs <- unlist(tcorrs[!sapply(tcorrs, is.null)]) #remove NULLs
+  return (tcorrs)
+}
